@@ -240,7 +240,6 @@ func (api *Api) chatMessagesStreamHandle(ctx context.Context, resp *http.Respons
 
 		err error
 		line []byte
-		isStarted = true
 	)
 
 	defer resp.Body.Close()
@@ -283,10 +282,6 @@ func (api *Api) chatMessagesStreamHandle(ctx context.Context, resp *http.Respons
 					}
 					return
 				} else if resp.Answer == "" {
-					if isStarted {
-						isStarted = false
-						continue
-					}
 					return
 				}
 				streamChannel <-resp
@@ -334,7 +329,7 @@ func (api *Api) Messages(ctx context.Context, req *MessagesRequest) (resp *Messa
 		return
 	}
 
-	var u url.Values
+	var u = url.Values{}
 	u.Set("conversation_id", req.ConversationID)
 	u.Set("user", req.User)
 
@@ -375,7 +370,7 @@ func (api *Api) Conversations(ctx context.Context, req *ConversationsRequest) (r
 		req.Limit = 20
 	}
 
-	var u url.Values
+	var u = url.Values{}
 	u.Set("last_id", req.LastID)
 	u.Set("user", req.User)
 
@@ -434,7 +429,7 @@ func (api *Api) Parameters(ctx context.Context, req *ParametersRequest) (resp *P
 		return
 	}
 
-	var u url.Values
+	var u = url.Values{}
 	u.Set("user", req.User)
 
 	var r *http.Request
