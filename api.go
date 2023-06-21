@@ -86,14 +86,19 @@ type MessagesRequest struct {
 }
 
 type MessagesResponse struct {
-	ID             string `json:"id"`
-	Username       string `json:"username"`
-	PhoneNumber    string `json:"phone_number"`
-	AvatarURL      string `json:"avatar_url"`
-	DisplayName    string `json:"display_name"`
-	ConversationID string `json:"conversation_id"`
-	LastActiveAt   int64  `json:"last_active_at"`
-	CreatedAt      int64  `json:"created_at"`
+	Limit    int        `json:"limit"`
+	HasMore  bool       `json:"has_more"`
+	Data     []MessagesDataResponse `json:"data"`
+}
+
+type MessagesDataResponse struct {
+	ID             string                 `json:"id"`
+	ConversationID string                 `json:"conversation_id"`
+	Inputs         map[string]interface{} `json:"inputs"`
+	Query          string                 `json:"query"`
+	Answer         string                 `json:"answer"`
+	Feedback       interface{}            `json:"feedback"`
+	CreatedAt      int64                  `json:"created_at"`
 }
 
 type ConversationsRequest struct {
@@ -131,18 +136,28 @@ type ParametersRequest struct {
 }
 
 type ParametersResponse struct {
-	Text      string      `json:"introduction"`
-	Variables []ParametersVariableResponse  `json:"variables"`
+	OpeningStatement            string         `json:"opening_statement"`
+	SuggestedQuestions          []interface{}  `json:"suggested_questions"`
+	SuggestedQuestionsAfterAnswer struct {
+		Enabled bool `json:"enabled"`
+	} `json:"suggested_questions_after_answer"`
+	MoreLikeThis struct {
+		Enabled bool `json:"enabled"`
+	} `json:"more_like_this"`
+	UserInputForm []map[string]interface{} `json:"user_input_form"`
 }
 
-type ParametersVariableResponse struct {
-	Key         string      `json:"key"`
-	Name        string      `json:"name"`
-	Description string      `json:"description"`
-	Type        string      `json:"type"`
-	Default     interface{} `json:"default"`
-	Options     interface{} `json:"options"`
-}
+// type ParametersUserInputFormResponse struct {
+// 	TextInput []ParametersTextInputResponse `json:"text-input"`
+// }
+
+// type ParametersTextInputResponse struct {
+// 	Label     string `json:"label"`
+// 	Variable  string `json:"variable"`
+// 	Required  bool   `json:"required"`
+// 	MaxLength int    `json:"max_length"`
+// 	Default   string `json:"default"`
+// }
 
 const (
 	FeedbackLike = "like"
@@ -158,7 +173,7 @@ func (api *Api) buildRequestApi(requestUrl string) string {
 }
 
 func (api *Api) createBaseRequest(ctx context.Context, method string, url string, req ...interface{}) (r *http.Request, err error) {
-	if r, err = api.c.NewHttpRequest(ctx, http.MethodPost, url, req...); err == nil {
+	if r, err = api.c.NewHttpRequest(ctx, method, url, req...); err == nil {
 		api.c.SetHttpRequest(r).
 			SetHttpRequestHeader("Authorization", "Bearer " + api.c.GetApiSecretKey()).
 			SetHttpRequestHeader("Cache-Control", "no-cache").
