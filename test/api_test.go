@@ -11,8 +11,8 @@ import (
 )
 
 var (
-	host = ""
-	apiSecretKey = ""
+	host = "这里填写你的host"
+	apiSecretKey = "这里填写你的api secret key"
 )
 
 func TestApi3(t *testing.T) {
@@ -36,7 +36,7 @@ func TestApi3(t *testing.T) {
 
 	ch, err = client1.Api().ChatMessagesStream(ctx, &dify.ChatMessageRequest{
 		Query: "你是谁?",
-		User: "jiuquan AI",
+		User: "这里换成你创建的",
 	})
 	if err != nil {
 		t.Fatal(err.Error())
